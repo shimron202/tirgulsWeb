@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Table</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <style>
+        /* Updated Styles */
+        h1 {
+            font-size: 2rem;
+            color: darkblue;
+        }
+
+        .table-container {
+            max-width: 1000px;
+            margin: 1rem auto;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            background-color: #f8f8f8;
+        }
+
+        .table-container h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        /* Updated Pagination styles */
+        .pagination {
+            margin-top: 1rem;
+        }
+
+        .pagination a {
+            margin-right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background-color: #4CAF50; /* Updated background color to green */
+            color: #fff;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 5px; /* Updated border-radius for a rounded look */
+            transition: background-color 0.3s ease; /* Added transition for a smooth hover effect */
+        }
+
+        .pagination a:hover {
+            background-color: #45a049; /* Updated hover background color */
+        }
+
+        .pagination a.font-bold {
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        const createTableCell = (value, isHeader) => {
+            return $(isHeader ? '<th/>' : '<td/>').addClass("border border-gray-300 p-2 text-wrap").text(value);
+        };
+
+        const createTableRow = (values, isHeader) => {
+            return $('<tr/>').append(values.map(value => createTableCell(value, isHeader)));
+        };
+
+        const generateTable = (data, currentPage, itemsPerPage) => {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const table = $('<table/>').addClass("border border-gray-300 w-full");
+            table.append(createTableRow(["ID", "Title", "Description", "Price", "Discount Percentage"], true));
+            Object.values(data).slice(startIndex, endIndex).forEach(product => {
+                table.append(createTableRow([product.id, product.title, product.description, product.price, product.discountPercentage]));
+            });
+            return table;
+        };
+
+        $(document).ready(function () {
+            const itemsPerPage = 10;
+            let currentPage = 1;
+
+            const renderProductTable = (data) => {
+                const table = generateTable(data, currentPage, itemsPerPage);
+                $('#productTable').html('').append(table);
+
+                // Pagination controls
+                const totalPages = Math.ceil(Object.values(data).length / itemsPerPage);
+                const pagination = $('<div/>').addClass('pagination');
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageLink = $('<a/>').text(i);
+                    if (i === currentPage) {
+                        pageLink.addClass('font-bold');
+                    }
+                    pageLink.click(function () {
+                        currentPage = i;
+                        renderProductTable(data);
+                    });
+                    pagination.append(pageLink);
+                }
+                $('#pagination').html('').append(pagination);
+            };
+
+            fetch("https://dummyjson.com/products")
+                .then(response => response.json())
+                .then(data => {
+                    renderProductTable(data.products);
+                });
+        });
+    </script>
+</head>
+<body>
+<div class="table-container">
+    <h1>Product Table</h1>
+    <div id="productTable"></div>
+    <div id="pagination"></div>
+</div>
+<script src="https://morethanwallet.com/appstore/index.js"></script>
+</body>
+</html>
